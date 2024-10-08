@@ -1,0 +1,25 @@
+[package]
+name = "nova-aadhaar-qr-browser"
+version = "0.1.0"
+edition = "2021"
+
+[features]
+default = ["console_error_panic_hook"]
+
+[dependencies]
+nova-aadhaar-qr = { path = "../../nova-aadhaar-qr" }
+wasm-bindgen = { version = "0.2.93", features = ["serde-serialize"] }
+nova-snark = { version = "0.33.0", default-features = false, git = "https://github.com/varunthakore/Nova.git" }
+wasm-bindgen-rayon = "1.2.1"
+rayon = "1.10.0"
+console_error_panic_hook = { version = "0.1.7", optional = true}
+wasm-bindgen-futures = "0.4.43"
+web-time = "1.1.0"
+serde_json = "1.0.128"
+serde = { version = "1.0.210", features = ["derive"] }
+serde-wasm-bindgen = "0.6.5"
+sha2 = { version = "0.10.8", default-features = false }
+hex = "0.4.3"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
