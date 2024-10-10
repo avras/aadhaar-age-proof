@@ -4,7 +4,7 @@ export const page_subtitle = writable('');
 export const public_params_generated = writable(false);
 export const public_params_generation_in_progress = writable(false);
 export const public_params_generation_time = writable(0);
-export const public_params_store = writable('');
+export const public_params_store = writable(new Uint8Array());
 
 export const proof_verification_in_progress = writable(false);
 export const proof_generation_in_progress = writable(false);

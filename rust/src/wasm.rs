@@ -1,3 +1,4 @@
+use base64::{prelude::BASE64_STANDARD, Engine as Base64Engine};
 use nova_aadhaar_qr::{
     circuit::{AadhaarAgeProofCircuit, OP_RSA_LAST},
     qr::{parse_aadhaar_qr_data, DOB_LENGTH_BYTES},
@@ -25,7 +26,7 @@ type C1 = AadhaarAgeProofCircuit<<E1 as Engine>::Scalar>;
 type C2 = TrivialCircuit<<E2 as Engine>::Scalar>;
 
 #[wasm_bindgen]
-pub async fn generate_public_parameters() -> String {
+pub async fn generate_public_parameters() -> Uint8Array {
     set_panic_hook();
     let circuit_primary: C1 = AadhaarAgeProofCircuit::default();
     let circuit_secondary: C2 = TrivialCircuit::new(StepCounterType::External);
@@ -41,8 +42,8 @@ pub async fn generate_public_parameters() -> String {
     .unwrap();
     console_log!("PublicParams::setup, took {:?} ", param_gen_timer.elapsed());
 
-    let serialized_pp = serde_json::to_string(&pp).unwrap();
-    return serialized_pp;
+    let serialized_pp = bincode::serialize(&pp).unwrap();
+    return Uint8Array::from(serialized_pp.as_slice());
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -55,7 +56,7 @@ pub struct AadhaarAgeProof {
 
 #[wasm_bindgen]
 pub async fn generate_proof(
-    pp_str: String,
+    pp_bytes: Uint8Array,
     qr_data_bytes: Uint8Array,
     current_date_bytes: &[u8],
     _demo: bool,
@@ -64,7 +65,8 @@ pub async fn generate_proof(
 
     let timer = Instant::now();
     console_log!("Started deserialization of public parameters");
-    let pp = serde_json::from_str::<PublicParams<E1, E2, C1, C2>>(&pp_str).unwrap();
+    let pp_bytes_vec = pp_bytes.to_vec();
+    let pp: PublicParams<E1, E2, C1, C2> = bincode::deserialize(&pp_bytes_vec[..]).unwrap();
     console_log!("Public parameters deserialized in {:?}", timer.elapsed());
 
     console_log!(
@@ -149,10 +151,11 @@ pub async fn generate_proof(
     console_log!("Total proving time is {:?}", proof_gen_timer.elapsed());
 
     let compressed_snark = res.unwrap();
-    let snark_proof = serde_json::to_string(&compressed_snark).unwrap();
+    let snark_proof_bytes = bincode::serialize(&compressed_snark).unwrap();
+    let snark_proof = BASE64_STANDARD.encode(snark_proof_bytes);
 
     let mut hasher = Sha256::new();
-    hasher.update(pp_str.as_bytes());
+    hasher.update(pp_bytes_vec);
     let pp_hash_bytes: [u8; 32] = hasher.finalize().try_into().unwrap();
     let pp_hash = hex::encode(pp_hash_bytes);
 
@@ -187,7 +190,7 @@ macro_rules! return_verify_error {
 }
 
 #[wasm_bindgen]
-pub async fn verify_proof(pp_str: String, aadhaar_age_proof: JsValue) -> JsValue {
+pub async fn verify_proof(pp_str: Uint8Array, aadhaar_age_proof: JsValue) -> JsValue {
     let res = serde_wasm_bindgen::from_value::<AadhaarAgeProof>(aadhaar_age_proof);
     return_verify_error!(res.is_err(), "Proof deserialization failed.");
 
@@ -197,9 +200,11 @@ pub async fn verify_proof(pp_str: String, aadhaar_age_proof: JsValue) -> JsValue
         "Proof version is not the expected value of 1"
     );
 
+    let pp_bytes = pp_str.to_vec();
+
     console_log!("Checking if hash of generated public parameters matches the hash in proof");
     let mut hasher = Sha256::new();
-    hasher.update(pp_str.as_bytes());
+    hasher.update(&pp_bytes);
     let pp_hash_bytes: [u8; 32] = hasher.finalize().try_into().unwrap();
     let pp_hash = hex::encode(pp_hash_bytes);
     return_verify_error!(
@@ -210,9 +215,9 @@ pub async fn verify_proof(pp_str: String, aadhaar_age_proof: JsValue) -> JsValue
 
     let timer = Instant::now();
     console_log!("Started deserialization of public parameters");
-    let res = serde_json::from_str::<PublicParams<E1, E2, C1, C2>>(&pp_str);
+    let res = bincode::deserialize(&pp_bytes[..]);
     return_verify_error!(res.is_err(), "Public parameters deserialization failed.");
-    let pp = res.unwrap();
+    let pp: PublicParams<E1, E2, C1, C2> = res.unwrap();
     console_log!("Public parameters deserialized in {:?}", timer.elapsed());
 
     let res = CompressedSNARK::<_, _, _, _, S1, S2>::setup(&pp);
@@ -225,11 +230,15 @@ pub async fn verify_proof(pp_str: String, aadhaar_age_proof: JsValue) -> JsValue
 
     let z0_primary = C1::calc_initial_primary_circuit_input(&nova_aadhaar_proof.current_date_bytes);
     let z0_secondary = vec![<E2 as Engine>::Scalar::zero()];
-    let res = serde_json::from_str::<CompressedSNARK<_, _, _, _, S1, S2>>(
-        &nova_aadhaar_proof.snark_proof,
+    let res = BASE64_STANDARD.decode(nova_aadhaar_proof.snark_proof);
+    return_verify_error!(
+        res.is_err(),
+        "Base64 decoding of SNARK proof string failed."
     );
+    let snark_proof_bytes: Vec<u8> = res.unwrap();
+    let res = bincode::deserialize(&snark_proof_bytes);
     return_verify_error!(res.is_err(), "SNARK proof deserialization failed.");
-    let compressed_snark = res.unwrap();
+    let compressed_snark: CompressedSNARK<_, _, _, _, S1, S2> = res.unwrap();
 
     let res = compressed_snark.verify(&vk, FINAL_EXTERNAL_COUNTER, &z0_primary, &z0_secondary);
     console_log!(

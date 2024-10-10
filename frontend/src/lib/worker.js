@@ -17,12 +17,12 @@ const AadhaarAgeProofWorker = {
   },
 
   /**
-   * @param {string} pp_str
+   * @param {Uint8Array} pp_bytes
    * @param {Uint8Array} qr_data_bytes
    * @param {Uint8Array} current_date_bytes
    * @param {boolean} demo
    */
-  async gen_proof(pp_str, qr_data_bytes, current_date_bytes, demo) {
+  async gen_proof(pp_bytes, qr_data_bytes, current_date_bytes, demo) {
     const multiThread = await import('$lib/pkg/nova_aadhaar_qr_browser');
     await multiThread.default();
     if (await threads()) {
@@ -32,14 +32,14 @@ const AadhaarAgeProofWorker = {
           console.log('Failed to initialize thread pool. Could be due to repeated initialization.')
         );
     }
-    return await multiThread.generate_proof(pp_str, qr_data_bytes, current_date_bytes, demo);
+    return await multiThread.generate_proof(pp_bytes, qr_data_bytes, current_date_bytes, demo);
   },
 
   /**
-   * @param {string} pp_str
+   * @param {Uint8Array} pp_bytes
    * @param {any} nova_aadhaar_proof
    */
-  async verify_proof(pp_str, nova_aadhaar_proof) {
+  async verify_proof(pp_bytes, nova_aadhaar_proof) {
     const multiThread = await import('$lib/pkg/nova_aadhaar_qr_browser');
     await multiThread.default();
     if (await threads()) {
@@ -49,7 +49,7 @@ const AadhaarAgeProofWorker = {
           console.log('Failed to initialize thread pool. Could be due to repeated initialization.')
         );
     }
-    return await multiThread.verify_proof(pp_str, nova_aadhaar_proof);
+    return await multiThread.verify_proof(pp_bytes, nova_aadhaar_proof);
   }
 };
 

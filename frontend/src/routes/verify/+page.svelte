@@ -60,7 +60,7 @@
   async function genParams() {
     if (browser) {
       if (window.Worker) {
-        if ($public_params_generation_in_progress == false && $public_params_store == '') {
+        if ($public_params_generation_in_progress == false && $public_params_store.length == 0) {
           $public_params_generation_in_progress = true;
           const start = performance.now();
           $public_params_store = await worker.gen_params();
