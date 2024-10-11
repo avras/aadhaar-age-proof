@@ -182,6 +182,7 @@
 
   function resetChoice() {
     $selected_image_files = null;
+    $qr_code_data = new Uint8Array();
     $proof_generated = false;
     $prover_demo = false;
   }
@@ -228,7 +229,7 @@
             disabled={$proof_generation_in_progress}
           />
         {/if}
-        {#if $qr_code_data && (qr_image_file || $prover_demo)}
+        {#if $qr_code_data.length != 0}
           {#if !$proof_generation_in_progress}
             <button
               class="btn btn-primary mt-2 mb-2"
