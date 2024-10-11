@@ -16,6 +16,7 @@ export const proof_is_correct = writable(false);
 export const prover_proof_object = writable({});
 export const verifier_proof_object = writable({});
 export const proof_verification_message = writable('');
+export const proof_nullifier = writable('');
 
 export const selected_image_files = writable();
 export const qr_parse_status_message = writable('');

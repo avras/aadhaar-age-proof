@@ -19,7 +19,8 @@
     proof_is_correct,
     proof_verification_message,
     verifier_demo,
-    page_subtitle
+    page_subtitle,
+    proof_nullifier
   } from '$lib/stores';
   import PublicParams from '$lib/components/PublicParams.svelte';
   import Spinner from '$lib/components/Spinner.svelte';
@@ -81,6 +82,7 @@
         let res = await worker.verify_proof($public_params_store, $verifier_proof_object);
         $proof_is_correct = res.success;
         $proof_verification_message = res.message;
+        $proof_nullifier = res.nullifier;
         $proof_verification_time = performance.now() - start;
         $proof_verified = true;
         $proof_verification_in_progress = false;
@@ -183,6 +185,8 @@
                 Proof verification succeeded in {millisToMinutesAndSeconds(
                   $proof_verification_time
                 )}.
+                <br />
+                Nullifier value is {$proof_nullifier}.
               </p>
             {:else}
               <p style="color:red;">

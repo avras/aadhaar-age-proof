@@ -104,9 +104,39 @@
         <a target="_blank" href="https://javascript.info/devtools">instructions here</a>.
       </p>
       <p>On a mobile phone, there is currently no way to monitor progress.</p>
-      <b>WARNING: </b>Opening developer tools can <b>significantly slow down</b> proof generation in
-      some browsers (Chrome, Brave). We have observed proof generation taking 3 times longer when developer
-      tools was open.
+      <p>
+        <b>WARNING: </b>Opening developer tools can <b>significantly slow down</b> proof generation in
+        some browsers (Chrome, Brave). We have observed proof generation taking 3 times longer when Javascript
+        console was open.
+      </p>
+    </li>
+    <li>
+      <p>
+        <b
+          >If the proofs reveal no information about the holder except the fact that they are an
+          adult, what prevents multiple people from reusing a single valid proof?
+        </b>
+      </p>
+      <p>
+        The generated proof contains a <b>nullifier</b> which is a cryptographic hash of the data in
+        the QR code (excluding a time stamp that changes everytime a QR code is requested). This nullifier
+        is unique to a holder as long as they don't change their name, address, date of birth, gender,
+        address, photo, or mobile number. So an application can use the nullifier to prevent reuse of
+        a holder's QR code.
+      </p>
+      <p>
+        A couple of caveats. Firstly, if a holder changes their identifying data then the nullifier
+        will change. To prevent multiple valid proofs from the same holder's data, the verifier can
+        require that the timestamp in the QR code be recent (for e.g., within the last week). This
+        feature is not implemented in the present demo.
+      </p>
+      <p>
+        Secondly, the nullifier can be used to track a user across applications. This kind of
+        tracking can be prevented by generating an application-specific nullifier. The prover will
+        accept an application name as input and generate a proof that contains a nullifier that will
+        depend on both the application's name and the user's data. This feature is also not
+        implemented in the present demo.
+      </p>
     </li>
   </ul>
 </div>
