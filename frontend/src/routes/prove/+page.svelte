@@ -3,7 +3,7 @@
   import { onMount } from 'svelte';
   import init from '$lib/pkg/nova_aadhaar_qr_browser.js';
   import { browser } from '$app/environment';
-  import { green, bigint_to_bytes } from '$lib/util';
+  import { green, bigint_to_bytes, millisToMinutesAndSeconds } from '$lib/util';
   import {
     public_params_generated,
     public_params_generation_in_progress,
@@ -208,7 +208,8 @@
           {/if}
           {#if $proof_generated && !$proof_generation_in_progress}
             <p>
-              Proof generation succeeded in {($proof_generation_time / 1000).toFixed(2)} seconds. Click
+              Proof generation succeeded in {millisToMinutesAndSeconds($proof_generation_time)}.
+              Click
               <a href={getProofFileLink()} download="aadhaar-age-proof.json">here</a> to download
               the proof.
               <br />

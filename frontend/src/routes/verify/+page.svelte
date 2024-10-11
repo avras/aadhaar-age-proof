@@ -3,7 +3,7 @@
   import { onMount } from 'svelte';
   import init from '$lib/pkg/nova_aadhaar_qr_browser.js';
   import { browser } from '$app/environment';
-  import { green, readFile } from '$lib/util';
+  import { green, millisToMinutesAndSeconds, readFile } from '$lib/util';
   import {
     public_params_generated,
     public_params_generation_in_progress,
@@ -180,7 +180,9 @@
           {#if $proof_verified}
             {#if $proof_is_correct}
               <p>
-                Proof verification succeeded in {($proof_verification_time / 1000).toFixed(2)} seconds.
+                Proof verification succeeded in {millisToMinutesAndSeconds(
+                  $proof_verification_time
+                )}.
               </p>
             {:else}
               <p style="color:red;">

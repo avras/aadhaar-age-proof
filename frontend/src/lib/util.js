@@ -1,3 +1,5 @@
+export const green = '#046A38';
+
 /**
  * @param {File} f
  */
@@ -23,4 +25,15 @@ export function bigint_to_bytes(bi) {
   return res.reverse();
 }
 
-export const green = '#046A38';
+/**
+ * @param {number} millis
+ */
+export function millisToMinutesAndSeconds(millis) {
+  var minutes = Math.floor(millis / 60000);
+  var seconds = Math.floor((millis % 60000) / 1000);
+  if (minutes == 0) {
+    return seconds.toFixed(0) + ' seconds';
+  } else {
+    return minutes + ' minutes ' + seconds.toFixed(0) + ' seconds';
+  }
+}
