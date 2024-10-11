@@ -76,6 +76,37 @@
     }
   }
 
+  function getCurrentDateStringDDMMYYY() {
+    const today = new Date();
+    const dd = String(today.getDate()).padStart(2, '0');
+    const mm = String(today.getMonth() + 1).padStart(2, '0'); // getMonth returns 0 to 11
+    const yyyy = today.getFullYear();
+    return dd + '-' + mm + '-' + yyyy;
+  }
+
+  function dateMessage() {
+    const today = new Date();
+    const monthNames = [
+      'January',
+      'February',
+      'March',
+      'April',
+      'May',
+      'June',
+      'July',
+      'August',
+      'September',
+      'October',
+      'November',
+      'December'
+    ];
+    const current_month_day = monthNames[today.getMonth()] + ' ' + today.getDate();
+    const birth_year = today.getFullYear() - 18;
+    return `Today is <b>${current_month_day}, ${today.getFullYear()}</b>. \
+    Generated proof will be valid if the holder was born on or before\
+     <b>${current_month_day}, ${birth_year}</b>.`;
+  }
+
   async function genProof() {
     if (browser) {
       if (window.Worker) {
@@ -86,7 +117,9 @@
           $prover_proof_object = await worker.gen_proof(
             $public_params_store,
             $qr_code_data,
-            Uint8Array.from(Array.from('10-10-2024').map((letter) => letter.charCodeAt(0))),
+            Uint8Array.from(
+              Array.from(getCurrentDateStringDDMMYYY()).map((letter) => letter.charCodeAt(0))
+            ),
             $prover_demo
           );
           $proof_generation_time = performance.now() - start;
@@ -203,6 +236,10 @@
               on:click={genProof}
               disabled={$proof_generation_in_progress}>Generate Proof</button
             >
+            {#if !$proof_generated}
+              <br />
+              {@html dateMessage()}
+            {/if}
           {:else}
             <SpinnerButton labeltext="Generating Proof..." />
           {/if}
@@ -212,6 +249,8 @@
               Click
               <a href={getProofFileLink()} download="aadhaar-age-proof.json">here</a> to download
               the proof.
+              <br />
+              {@html dateMessage()}
               <br />
               {#if $prover_demo}
                 <span style="color:red;">
