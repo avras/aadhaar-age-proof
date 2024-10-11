@@ -50,7 +50,7 @@ pub async fn generate_public_parameters() -> Uint8Array {
 pub struct AadhaarAgeProof {
     pub version: u32,
     pub pp_hash: String,
-    pub current_date_bytes: [u8; DOB_LENGTH_BYTES], // Current date in DD-MM-YYYY format
+    pub current_date_ddmmyyyy: String, // Current date in DD-MM-YYYY format
     pub snark_proof: String,
 }
 
@@ -162,7 +162,7 @@ pub async fn generate_proof(
     let nova_aadhaar_proof = AadhaarAgeProof {
         version: 1,
         pp_hash,
-        current_date_bytes: current_date_bytes.try_into().unwrap(),
+        current_date_ddmmyyyy: String::from_utf8(current_date_bytes.to_vec()).unwrap(),
         snark_proof,
     };
 
@@ -228,7 +228,12 @@ pub async fn verify_proof(pp_str: Uint8Array, aadhaar_age_proof: JsValue) -> JsV
     console_log!("Verifying a CompressedSNARK...");
     let start = Instant::now();
 
-    let z0_primary = C1::calc_initial_primary_circuit_input(&nova_aadhaar_proof.current_date_bytes);
+    let current_date_bytes: [u8; DOB_LENGTH_BYTES] = nova_aadhaar_proof
+        .current_date_ddmmyyyy
+        .as_bytes()
+        .try_into()
+        .unwrap();
+    let z0_primary = C1::calc_initial_primary_circuit_input(&current_date_bytes);
     let z0_secondary = vec![<E2 as Engine>::Scalar::zero()];
     let res = BASE64_STANDARD.decode(nova_aadhaar_proof.snark_proof);
     return_verify_error!(
