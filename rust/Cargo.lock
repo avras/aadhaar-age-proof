@@ -384,16 +384,15 @@ dependencies = [
 
 [[package]]
 name = "halo2curves"
-version = "0.5.0"
+version = "0.6.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d235874f6ae850856efd484baa851b0caeb5a56c323306f8eb60523c6fcba259"
+checksum = "db81d01d0bbfec9f624d7590fc6929ee2537a64ec1e080d8f8c9e2d2da291405"
 dependencies = [
  "blake2b_simd",
  "ff",
  "group",
  "hex",
  "lazy_static",
- "maybe-rayon",
  "num-bigint 0.4.6",
  "num-traits",
  "pairing",
@@ -401,6 +400,7 @@ dependencies = [
  "paste",
  "rand",
  "rand_core",
+ "rayon",
  "serde",
  "serde_arrays",
  "static_assertions",
@@ -492,16 +492,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a7a70ba024b9dc04c27ea2f0c0548feb474ec5c54bba33a7f72f873a39d07b24"
 
 [[package]]
-name = "maybe-rayon"
-version = "0.1.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8ea1f30cedd69f0a2954655f7188c6a834246d2bcf1e315e2ac40c4b24dc9519"
-dependencies = [
- "cfg-if",
- "rayon",
-]
-
-[[package]]
 name = "memchr"
 version = "2.7.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -564,8 +554,8 @@ dependencies = [
 
 [[package]]
 name = "nova-snark"
-version = "0.33.0"
-source = "git+https://github.com/varunthakore/Nova.git#ecd282c284792fbf671ad986291adf2cc97031c0"
+version = "0.37.0"
+source = "git+https://github.com/microsoft/Nova.git?rev=ac8b057cd6fbc2aba7b2888a9b9c37fec9119d45#ac8b057cd6fbc2aba7b2888a9b9c37fec9119d45"
 dependencies = [
  "bellpepper",
  "bellpepper-core",
@@ -574,7 +564,7 @@ dependencies = [
  "byteorder 1.5.0",
  "digest",
  "ff",
- "generic-array 0.14.7",
+ "generic-array 1.1.0",
  "getrandom",
  "group",
  "halo2curves",
@@ -586,7 +576,6 @@ dependencies = [
  "once_cell",
  "pasta-msm",
  "pasta_curves",
- "rand",
  "rand_chacha",
  "rand_core",
  "rayon",

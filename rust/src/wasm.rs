@@ -6,7 +6,7 @@ use nova_aadhaar_qr::{
 use nova_snark::{
     provider::{PallasEngine, VestaEngine},
     traits::{circuit::TrivialCircuit, snark::RelaxedR1CSSNARKTrait, Engine},
-    CompressedSNARK, PublicParams, RecursiveSNARK, StepCounterType, FINAL_EXTERNAL_COUNTER,
+    CompressedSNARK, PublicParams, RecursiveSNARK,
 };
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
@@ -20,8 +20,8 @@ type E1 = PallasEngine;
 type E2 = VestaEngine;
 type EE1 = nova_snark::provider::ipa_pc::EvaluationEngine<E1>;
 type EE2 = nova_snark::provider::ipa_pc::EvaluationEngine<E2>;
-type S1 = nova_snark::spartan::zksnark::RelaxedR1CSSNARK<E1, EE1>;
-type S2 = nova_snark::spartan::zksnark::RelaxedR1CSSNARK<E2, EE2>;
+type S1 = nova_snark::spartan::snark::RelaxedR1CSSNARK<E1, EE1>;
+type S2 = nova_snark::spartan::snark::RelaxedR1CSSNARK<E2, EE2>;
 type C1 = AadhaarAgeProofCircuit<<E1 as Engine>::Scalar>;
 type C2 = TrivialCircuit<<E2 as Engine>::Scalar>;
 
@@ -29,7 +29,7 @@ type C2 = TrivialCircuit<<E2 as Engine>::Scalar>;
 pub async fn generate_public_parameters() -> Uint8Array {
     set_panic_hook();
     let circuit_primary: C1 = AadhaarAgeProofCircuit::default();
-    let circuit_secondary: C2 = TrivialCircuit::new(StepCounterType::External);
+    let circuit_secondary: C2 = TrivialCircuit::default();
 
     let param_gen_timer = Instant::now();
     console_log!("Producing public parameters...");
@@ -50,6 +50,7 @@ pub async fn generate_public_parameters() -> Uint8Array {
 pub struct AadhaarAgeProof {
     pub version: u32,
     pub pp_hash: String,
+    pub num_steps: usize,
     pub current_date_ddmmyyyy: String, // Current date in DD-MM-YYYY format
     pub snark_proof: String,
 }
@@ -93,7 +94,7 @@ pub async fn generate_proof(
     let z0_primary = C1::calc_initial_primary_circuit_input(current_date_bytes);
     let z0_secondary = vec![<E2 as Engine>::Scalar::zero()];
 
-    let circuit_secondary: C2 = TrivialCircuit::new(StepCounterType::External);
+    let circuit_secondary: C2 = TrivialCircuit::default();
 
     let proof_gen_timer = Instant::now();
     // produce a recursive SNARK
@@ -128,7 +129,8 @@ pub async fn generate_proof(
     // verify the recursive SNARK
     console_log!("Verifying a RecursiveSNARK...");
     let start = Instant::now();
-    let res = recursive_snark.verify(&pp, FINAL_EXTERNAL_COUNTER, &z0_primary, &z0_secondary);
+    let num_steps = primary_circuit_sequence.len();
+    let res = recursive_snark.verify(&pp, num_steps, &z0_primary, &z0_secondary);
     console_log!(
         "RecursiveSNARK::verify: {:?}, took {:?}",
         res.is_ok(),
@@ -162,6 +164,7 @@ pub async fn generate_proof(
     let nova_aadhaar_proof = AadhaarAgeProof {
         version: 1,
         pp_hash,
+        num_steps,
         current_date_ddmmyyyy: String::from_utf8(current_date_bytes.to_vec()).unwrap(),
         snark_proof,
     };
@@ -245,7 +248,12 @@ pub async fn verify_proof(pp_str: Uint8Array, aadhaar_age_proof: JsValue) -> JsV
     return_verify_error!(res.is_err(), "SNARK proof deserialization failed.");
     let compressed_snark: CompressedSNARK<_, _, _, _, S1, S2> = res.unwrap();
 
-    let res = compressed_snark.verify(&vk, FINAL_EXTERNAL_COUNTER, &z0_primary, &z0_secondary);
+    let res = compressed_snark.verify(
+        &vk,
+        nova_aadhaar_proof.num_steps,
+        &z0_primary,
+        &z0_secondary,
+    );
     console_log!(
         "CompressedSNARK::verify: {:?}, took {:?}",
         res.is_ok(),

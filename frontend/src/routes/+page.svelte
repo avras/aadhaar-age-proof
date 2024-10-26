@@ -80,17 +80,17 @@
         generation time is to multiply the public parameter generation time by 15.
       </p>
       <p>
-        On a desktop/laptop computer, <b>proof generation</b> takes about 3 minutes. On a mobile device,
+        On a desktop/laptop computer, <b>proof generation</b> takes about 2 minutes. On a mobile device,
         it can take 10 minutes or more.
       </p>
       <p>
         On a desktop/laptop computer,
-        <b>proof verification</b> takes about 15 seconds. On a mobile phone, it can takes about a minute.
+        <b>proof verification</b> takes about 8 seconds. On a mobile phone, it can takes about a minute.
       </p>
     </li>
     <li>
       <p><b> How big are the proofs?</b></p>
-      <p>Proof files are about 32 KB in size.</p>
+      <p>Proof files are about 15 KB in size.</p>
     </li>
     <li>
       <p><b>Proof generation is taking a long time. How can I monitor its progress?</b></p>
