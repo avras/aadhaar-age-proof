@@ -193,7 +193,7 @@ macro_rules! return_verify_error {
 }
 
 #[wasm_bindgen]
-pub async fn verify_proof(pp_str: Uint8Array, aadhaar_age_proof: JsValue) -> JsValue {
+pub async fn verify_proof(pp_bytes: Uint8Array, aadhaar_age_proof: JsValue) -> JsValue {
     let res = serde_wasm_bindgen::from_value::<AadhaarAgeProof>(aadhaar_age_proof);
     return_verify_error!(res.is_err(), "Proof deserialization failed.");
 
@@ -203,7 +203,7 @@ pub async fn verify_proof(pp_str: Uint8Array, aadhaar_age_proof: JsValue) -> JsV
         "Proof version is not the expected value of 1"
     );
 
-    let pp_bytes = pp_str.to_vec();
+    let pp_bytes = pp_bytes.to_vec();
 
     console_log!("Checking if hash of generated public parameters matches the hash in proof");
     let mut hasher = Sha256::new();
