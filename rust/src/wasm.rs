@@ -1,6 +1,6 @@
 use base64::{prelude::BASE64_STANDARD, Engine as Base64Engine};
 use nova_aadhaar_qr::{
-    circuit::{AadhaarAgeProofCircuit, OP_RSA_LAST},
+    circuit::{AadhaarAgeProofCircuit, OP_CODE_LAST},
     qr::{parse_aadhaar_qr_data, DOB_LENGTH_BYTES},
 };
 use nova_snark::{
@@ -264,7 +264,7 @@ pub async fn verify_proof(pp_bytes: Uint8Array, aadhaar_age_proof: JsValue) -> J
     let final_outputs = res.unwrap().0;
     let final_opcode = final_outputs[0];
     return_verify_error!(
-        final_opcode != <E1 as Engine>::Scalar::from(OP_RSA_LAST + 1),
+        final_opcode != <E1 as Engine>::Scalar::from(OP_CODE_LAST + 1),
         "Final opcode is incorrect."
     );
 
