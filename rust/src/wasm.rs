@@ -271,7 +271,7 @@ pub async fn verify_proof(pp_bytes: Uint8Array, aadhaar_age_proof: JsValue) -> J
     let result = AadhaarAgeVerifyResult {
         success: true,
         message: String::from("Proof verification succeeded."),
-        nullifier: format!("{:?}", final_outputs[2]),
+        nullifier: format!("{:?}", final_outputs[1]),
     };
 
     return serde_wasm_bindgen::to_value(&result).unwrap();
