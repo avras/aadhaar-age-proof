@@ -519,6 +519,7 @@ dependencies = [
 [[package]]
 name = "nova-aadhaar-qr"
 version = "0.1.0"
+source = "git+https://github.com/avras/nova-aadhaar-qr#d55e41356bbed00f647e5e99fab94dd9264761bc"
 dependencies = [
  "bellpepper",
  "bellpepper-core",

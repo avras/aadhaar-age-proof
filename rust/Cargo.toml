@@ -7,7 +7,7 @@ edition = "2021"
 default = ["console_error_panic_hook"]
 
 [dependencies]
-nova-aadhaar-qr = { path = "../../nova-aadhaar-qr" }
+nova-aadhaar-qr = { git = "https://github.com/avras/nova-aadhaar-qr" }
 wasm-bindgen = { version = "0.2.93", features = ["serde-serialize"] }
 nova-snark = { git = "https://github.com/microsoft/Nova.git", default-features = false, rev = "ac8b057cd6fbc2aba7b2888a9b9c37fec9119d45" }
 wasm-bindgen-rayon = "1.2.1"
